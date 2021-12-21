@@ -73,9 +73,11 @@ int code_remap_with_substrated(uint8_t *buffer, uint32_t buffer_size, addr_t add
 PUBLIC MemoryOperationError CodePatch(void *address, uint8_t *buffer, uint32_t buffer_size) {
   kern_return_t kr;
 
-  int page_size = (int)sysconf(_SC_PAGESIZE);
-  addr_t page_aligned_address = ALIGN_FLOOR(address, page_size);
+  int single_page_size = (int)sysconf(_SC_PAGESIZE);
+  addr_t page_aligned_address = ALIGN_FLOOR(address, single_page_size);
   int offset = (int)((addr_t)address - page_aligned_address);
+  int page_count = 1 + (offset + buffer_size) / single_page_size;
+  int page_size = single_page_size * page_count;
 
   static mach_port_t self_port = mach_task_self();
 #ifdef __APPLE__
